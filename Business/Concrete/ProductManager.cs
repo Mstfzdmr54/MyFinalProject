@@ -1,4 +1,5 @@
 ﻿using Business.Abstract;
+using Business.BusinessAspects.Autofact;
 using Business.CCS;
 using Business.Constants;
 using Business.ValidationRules.FluentValidation;
@@ -7,6 +8,7 @@ using Core.CrossCuttingConcerns.Validation;
 using Core.Utilities.Business;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
+using DataAccess.Concrete.EntityFramework;
 using DataAccess.Concrete.InMemory;
 using Entities.Concrete;
 using Entities.DTOs;
@@ -22,7 +24,13 @@ namespace Business.Concrete
     {
         IProductDal _productDal;
         ICategoryDal _categoryDal;
-        
+        private EfProductDal efProductDal;
+
+        public ProductManager(EfProductDal efProductDal)
+        {
+            this.efProductDal = efProductDal;
+        }
+
         public ProductManager(IProductDal productDal, ICategoryDal categoryDal)
         {
             _productDal = productDal;
@@ -30,6 +38,7 @@ namespace Business.Concrete
             
         }
 
+        [SecuredOperation("product.add,amin")]
         [ValidationAspect(typeof(ProductValidator))]
         public IResult Add(Product product)
         {
@@ -49,7 +58,7 @@ namespace Business.Concrete
 
         public IDataResult<List<Product>> GetAll()
         {
-            if (DateTime.Now.Hour == 1)
+            if (DateTime.Now.Hour == 5)
             {
                 return new ErrorDataResult<List<Product>>(Messages.MaintenanceTime);
             }
